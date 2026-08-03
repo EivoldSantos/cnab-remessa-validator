@@ -21,14 +21,23 @@ Build:
 npm run build
 ```
 
-## O que valida (nível A)
+## O que valida (nível A + B parcial)
 
+### Nível A — estrutural
 - Detecção automática CNAB240 / CNAB400 (tamanho de linha)
 - Banco pelo código COMPE no header
 - Header / trailer / segmentos (P, Q, R…)
 - Sequenciais e contagens (warnings se banco zera campos)
 - Catálogo ACBr: layout suportado por banco
-- Filtro opcional de COMPE na UI
+
+### Nível B — linha a linha (Fase 0)
+- `field-engine` + `spec-registry` + `validate-line`
+- Specs FEBRABAN: **header 400** e **trailer 400**
+- Parse e validação campo a campo (tipo, enum, data, sequencial)
+- UI: tabela de campos por linha + coluna campo nos issues
+- Default: `level: 'AB'` (use `{ level: 'A' }` só estrutural)
+
+Próximo: detalhe 400 Bradesco + segmentos 240 (ver pasta `sdd/` local).
 
 Arquivo processado **só no navegador** (sem upload).
 

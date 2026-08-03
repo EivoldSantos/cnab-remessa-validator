@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 
+# SDD — especificação de design (nível B linha a linha)
+sdd/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

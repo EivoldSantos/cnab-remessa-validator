@@ -25,7 +25,7 @@ interface ValidationReportProps {
 }
 
 export function ValidationReport({ fileName, result }: ValidationReportProps) {
-  const { summary, issues, preview, ok } = result
+  const { summary, issues, preview, ok, lineDetails } = result
   const errors = issues.filter((i) => i.severity === 'error').length
   const warnings = issues.filter((i) => i.severity === 'warning').length
 
@@ -33,13 +33,16 @@ export function ValidationReport({ fileName, result }: ValidationReportProps) {
     <div className="flex flex-col gap-4">
       <Alert variant={ok ? 'default' : 'destructive'}>
         {ok ? <CheckCircle2 className="size-4" /> : <XCircle className="size-4" />}
-        <AlertTitle>{ok ? 'Remessa estruturalmente válida' : 'Problemas encontrados'}</AlertTitle>
+        <AlertTitle>{ok ? 'Remessa válida' : 'Problemas encontrados'}</AlertTitle>
         <AlertDescription>
           {fileName} — {errors} erro(s), {warnings} aviso(s)
+          {summary.fieldsValidated != null && summary.fieldsValidated > 0
+            ? ` · ${summary.fieldsValidated} campo(s) validados (nível B)`
+            : ''}
         </AlertDescription>
       </Alert>
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
         <SummaryItem label="Layout" value={summary.layout?.toUpperCase() ?? '—'} />
         <SummaryItem
           label="Banco"
@@ -54,12 +57,20 @@ export function ValidationReport({ fileName, result }: ValidationReportProps) {
           label="Linhas / títulos"
           value={`${summary.lineCount} / ~${summary.titleEstimate}`}
         />
+        <SummaryItem
+          label="Campos (B)"
+          value={
+            summary.fieldsValidated != null
+              ? `${summary.fieldsValidated - (summary.invalidFields ?? 0)}/${summary.fieldsValidated} ok`
+              : '—'
+          }
+        />
       </div>
 
       <Card>
         <CardHeader>
           <CardTitle className="text-base">Issues</CardTitle>
-          <CardDescription>Validação nível A — estrutura FEBRABAN + catálogo ACBr</CardDescription>
+          <CardDescription>Estrutura (A) + campos posicionais (B)</CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
@@ -68,6 +79,7 @@ export function ValidationReport({ fileName, result }: ValidationReportProps) {
                 <TableHead className="w-24">Severidade</TableHead>
                 <TableHead className="w-36">Código</TableHead>
                 <TableHead className="w-16">Linha</TableHead>
+                <TableHead className="w-28">Campo</TableHead>
                 <TableHead>Mensagem</TableHead>
               </TableRow>
             </TableHeader>
@@ -77,6 +89,7 @@ export function ValidationReport({ fileName, result }: ValidationReportProps) {
                   <TableCell>{severityBadge(issue.severity)}</TableCell>
                   <TableCell className="font-mono text-xs">{issue.code}</TableCell>
                   <TableCell>{issue.line ?? '—'}</TableCell>
+                  <TableCell className="font-mono text-xs">{issue.field ?? '—'}</TableCell>
                   <TableCell>{issue.message}</TableCell>
                 </TableRow>
               ))}
@@ -84,6 +97,49 @@ export function ValidationReport({ fileName, result }: ValidationReportProps) {
           </Table>
         </CardContent>
       </Card>
+
+      {lineDetails && lineDetails.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Campos por linha</CardTitle>
+            <CardDescription>Registros com spec implementada</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {lineDetails.map((ld) => (
+              <div key={ld.lineIndex} className="rounded-md border p-3">
+                <p className="text-sm font-medium">
+                  Linha {ld.lineIndex} — {ld.recordLabel}{' '}
+                  <span className="text-muted-foreground">({ld.recordType})</span>
+                </p>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Pos</TableHead>
+                      <TableHead>Campo</TableHead>
+                      <TableHead>Valor</TableHead>
+                      <TableHead>Ok</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {ld.fields.map((f) => (
+                      <TableRow key={f.id}>
+                        <TableCell className="font-mono text-xs">
+                          {f.start}-{f.end}
+                        </TableCell>
+                        <TableCell className="text-xs">{f.label}</TableCell>
+                        <TableCell className="max-w-xs truncate font-mono text-xs" title={f.raw}>
+                          {f.value ?? '(vazio)'}
+                        </TableCell>
+                        <TableCell>{f.valid ? '✓' : '✗'}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      )}
 
       <Card>
         <CardHeader>

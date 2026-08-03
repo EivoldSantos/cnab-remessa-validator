@@ -3,6 +3,7 @@ import { detectRemessa } from './detect'
 import { estimateTitles240, lineTipo240, parse240 } from './parse-240'
 import { lineTipo400, parse400 } from './parse-400'
 import { CNAB240, CNAB400, field } from './positions'
+import { validateFileLines } from './validate-line'
 import type {
   RemessaSummary,
   ValidateOptions,
@@ -350,9 +351,39 @@ export function validateRemessa(
     raw: line.raw,
   }))
 
+  const level = options?.level ?? 'AB'
+  let lineDetails = undefined
+  let fieldsValidated = 0
+  let invalidFields = 0
+
+  if (level !== 'A' && layout && bankInfo.bankIds.length > 0) {
+    const bankResult = validateFileLines(lines, {
+      layout,
+      bankId: bankInfo.bankIds[0],
+      bankCode,
+    })
+    issues.push(...bankResult.issues)
+    lineDetails = bankResult.lineDetails
+    for (const ld of bankResult.lineDetails) {
+      fieldsValidated += ld.fields.length
+      invalidFields += ld.fields.filter((f) => !f.valid).length
+    }
+    if (lineDetails.length > 0) {
+      push(
+        issues,
+        'info',
+        'LEVEL_B',
+        `Validação linha a linha: ${lineDetails.length} registro(s), ${fieldsValidated} campo(s)`,
+      )
+    }
+  }
+
+  summary.fieldsValidated = fieldsValidated
+  summary.invalidFields = invalidFields
+
   const ok = !issues.some((i) => i.severity === 'error')
 
-  return { ok, summary, issues, lines, preview }
+  return { ok, summary, issues, lines, preview, lineDetails }
 }
 
 export { detectRemessa, splitLines } from './detect'
