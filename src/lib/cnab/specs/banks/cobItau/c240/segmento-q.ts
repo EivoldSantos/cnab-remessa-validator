@@ -1,0 +1,43 @@
+import type { RecordSpec } from '../../../../types'
+
+/** Segmento Q CNAB240 Itaú — ACBrBancoItau.GerarRegistroTransacao240 */
+export const ITAU_C240_SEGMENTO_Q: RecordSpec = {
+  id: 'cobItau-c240-segmento-q',
+  layout: 'c240',
+  recordType: '3Q',
+  label: 'Segmento Q Itaú',
+  lineLength: 240,
+  bankId: 'cobItau',
+  acbrRef: 'ACBrBancoItau.pas:GerarRegistroTransacao240',
+  fields: [
+    { id: 'codigo_banco', label: 'Código banco', start: 1, end: 3, type: 'numeric' },
+    { id: 'lote', label: 'Lote', start: 4, end: 7, type: 'numeric' },
+    { id: 'tipo_registro', label: 'Tipo registro', start: 8, end: 8, type: 'enum', enum: ['3'] },
+    { id: 'sequencial', label: 'Sequencial lote', start: 9, end: 13, type: 'numeric' },
+    { id: 'segmento', label: 'Segmento', start: 14, end: 14, type: 'enum', enum: ['Q'] },
+    { id: 'uso_febraban', label: 'Uso FEBRABAN', start: 15, end: 15, type: 'filler', required: false },
+    {
+      id: 'codigo_movimento',
+      label: 'Código movimento',
+      start: 16,
+      end: 17,
+      type: 'enum',
+      enumRef: 'itau-remessa-240',
+    },
+    { id: 'tipo_inscricao', label: 'Tipo inscrição sacado', start: 18, end: 18, type: 'enum', enum: ['1', '2'] },
+    { id: 'cpf_cnpj', label: 'CPF/CNPJ sacado', start: 19, end: 33, type: 'numeric', issueCode: 'F240_SEGQ_CPF' },
+    { id: 'nome', label: 'Nome sacado', start: 34, end: 63, type: 'alpha', issueCode: 'F240_SEGQ_NOME' },
+    { id: 'brancos_64', label: 'Brancos', start: 64, end: 73, type: 'filler', required: false },
+    { id: 'endereco', label: 'Endereço', start: 74, end: 113, type: 'alpha', required: false },
+    { id: 'bairro', label: 'Bairro', start: 114, end: 128, type: 'alpha', required: false },
+    { id: 'cep', label: 'CEP', start: 129, end: 136, type: 'numeric', issueCode: 'F240_ITAU_CEP' },
+    { id: 'cidade', label: 'Cidade', start: 137, end: 151, type: 'alpha', required: false },
+    { id: 'uf', label: 'UF', start: 152, end: 153, type: 'alpha', required: false },
+    { id: 'tipo_inscricao_avalista', label: 'Tipo inscrição avalista', start: 154, end: 154, type: 'alphanumeric', required: false },
+    { id: 'cpf_cnpj_avalista', label: 'CPF/CNPJ avalista', start: 155, end: 169, type: 'numeric', required: false },
+    { id: 'nome_avalista', label: 'Nome avalista', start: 170, end: 199, type: 'alpha', required: false },
+    { id: 'brancos_200', label: 'Brancos', start: 200, end: 209, type: 'filler', required: false },
+    { id: 'uso_febraban2', label: 'Uso FEBRABAN', start: 210, end: 212, type: 'alphanumeric', required: false },
+    { id: 'resto', label: 'Complemento', start: 213, end: 240, type: 'filler', required: false },
+  ],
+}

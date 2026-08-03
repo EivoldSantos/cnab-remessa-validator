@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { validateRemessa, findBanksByCompe, ACBR_BANKS } from './index'
-import { remessa240Bradesco, remessa240VortxUnsupported, remessa400Bradesco } from './fixtures'
+import { remessa240BB, remessa240Bradesco, remessa240Itau, remessa240VortxUnsupported, remessa400BB, remessa400Bradesco, remessa400Itau } from './fixtures'
 
 describe('catálogo ACBr', () => {
   it('tem bancos com COMPE', () => {
@@ -44,11 +44,48 @@ describe('validateRemessa CNAB240', () => {
     expect(result.ok).toBe(true)
   })
 
+  it('aceita remessa Itaú 240 válida', () => {
+    const result = validateRemessa(remessa240Itau())
+    expect(result.summary.layout).toBe('c240')
+    expect(result.summary.bankCode).toBe('341')
+    expect(result.summary.titleEstimate).toBe(1)
+    expect(result.ok).toBe(true)
+  })
+
   it('erro layout não suportado Vórtx em 240', () => {
     const result = validateRemessa(remessa240VortxUnsupported())
     expect(result.summary.layout).toBe('c240')
     expect(result.ok).toBe(false)
     expect(result.issues.some((i) => i.code === 'LAYOUT_UNSUPPORTED')).toBe(true)
+  })
+})
+
+describe('validateRemessa CNAB400 BB', () => {
+  it('aceita remessa BB 400 válida', () => {
+    const result = validateRemessa(remessa400BB())
+    expect(result.summary.layout).toBe('c400')
+    expect(result.summary.bankCode).toBe('001')
+    expect(result.ok).toBe(true)
+  })
+})
+
+describe('validateRemessa CNAB240 BB', () => {
+  it('aceita remessa BB 240 válida', () => {
+    const result = validateRemessa(remessa240BB())
+    expect(result.summary.layout).toBe('c240')
+    expect(result.summary.bankCode).toBe('001')
+    expect(result.summary.titleEstimate).toBe(1)
+    expect(result.ok).toBe(true)
+  })
+})
+
+describe('validateRemessa CNAB400 Itaú', () => {
+  it('aceita remessa Itaú 400 válida', () => {
+    const result = validateRemessa(remessa400Itau())
+    expect(result.summary.layout).toBe('c400')
+    expect(result.summary.bankCode).toBe('341')
+    expect(result.summary.titleEstimate).toBeGreaterThanOrEqual(1)
+    expect(result.ok).toBe(true)
   })
 })
 

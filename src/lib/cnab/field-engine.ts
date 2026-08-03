@@ -5,6 +5,7 @@ import type {
   RecordSpec,
   ValidationIssue,
 } from './types'
+import { getEnumRef } from './enums'
 
 function issueCode(def: FieldDefinition, fallback: string): string {
   return def.issueCode ?? fallback
@@ -88,6 +89,11 @@ function validateSingleField(
   }
 
   if (def.type === 'filler' || isEmpty) {
+    return issues
+  }
+
+  // Datas zeradas = sem desconto / campo não usado
+  if (def.type === 'date' && /^0+$/.test(value)) {
     return issues
   }
 
@@ -177,28 +183,32 @@ function validateSingleField(
         parsed.valid = false
       }
       break
-    case 'enum':
-      if (def.enum && !def.enum.includes(value)) {
+    case 'enum': {
+      const allowed = def.enum ?? (def.enumRef ? getEnumRef(def.enumRef) : undefined)
+      if (allowed && !allowed.includes(value)) {
         issues.push({
           severity: 'error',
           code,
-          message: `${def.label}: valor "${value}" não permitido (${def.enum.join(', ')})`,
+          message: `${def.label}: valor "${value}" não permitido (${allowed.slice(0, 5).join(', ')}${allowed.length > 5 ? '…' : ''})`,
           line: ctx.lineIndex,
           field: def.id,
           position: pos,
-          expected: def.enum.join('|'),
+          expected: allowed.join('|'),
           actual: value,
         })
         parsed.valid = false
       }
       break
+    }
   }
 
-  if (def.id === 'sequencial' && ctx.lineCount != null) {
+  if (def.id === 'sequencial') {
     const expected =
       ctx.recordType === '0'
         ? '000001'
-        : String(ctx.lineCount).padStart(6, '0')
+        : ctx.recordType === '9'
+          ? String(ctx.lineCount ?? ctx.lineIndex).padStart(6, '0')
+          : String(ctx.lineIndex).padStart(6, '0')
     if (value !== expected) {
       issues.push({
         severity: 'warning',
