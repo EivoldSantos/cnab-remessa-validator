@@ -111,6 +111,26 @@ export const CAIXA_REMESSA_240 = [
   '01', '02', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '31', '33', '34', '37', '47',
 ]
 
+/** Ocorrências remessa CNAB400 — Sicredi */
+export const SICREDI_REMESSA_400 = [
+  '01', '02', '04', '05', '06', '09', '18', '19', '31', '45', '75', '76',
+]
+
+/** Códigos movimento remessa CNAB240 — Sicredi */
+export const SICREDI_REMESSA_240 = [
+  '01', '02', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '16', '17', '31', '45', '75', '76',
+]
+
+/** Ocorrências remessa CNAB400 — Sicoob */
+export const SICOOB_REMESSA_400 = [
+  '01', '02', '04', '05', '06', '08', '09', '10', '11', '12', '31', '34',
+]
+
+/** Códigos movimento remessa CNAB240 — Sicoob */
+export const SICOOB_REMESSA_240 = [
+  '01', '02', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '19', '20', '23', '31', '45',
+]
+
 /** Ocorrências remessa CNAB400 genéricas FEBRABAN (fallback demais bancos) */
 export const FEBRABAN_REMESSA_400 = [
   ...new Set([
@@ -119,6 +139,8 @@ export const FEBRABAN_REMESSA_400 = [
     ...BB_REMESSA_400,
     ...SANTANDER_REMESSA_400,
     ...CAIXA_REMESSA_400,
+    ...SICREDI_REMESSA_400,
+    ...SICOOB_REMESSA_400,
   ]),
 ]
 
@@ -133,6 +155,10 @@ const ENUM_REFS: Record<string, string[]> = {
   'santander-remessa-240': SANTANDER_REMESSA_240,
   'caixa-remessa-400': CAIXA_REMESSA_400,
   'caixa-remessa-240': CAIXA_REMESSA_240,
+  'sicredi-remessa-400': SICREDI_REMESSA_400,
+  'sicredi-remessa-240': SICREDI_REMESSA_240,
+  'sicoob-remessa-400': SICOOB_REMESSA_400,
+  'sicoob-remessa-240': SICOOB_REMESSA_240,
   'febraban-remessa-400': FEBRABAN_REMESSA_400,
 }
 

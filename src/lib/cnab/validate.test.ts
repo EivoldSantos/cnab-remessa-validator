@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { validateRemessa, findBanksByCompe, ACBR_BANKS } from './index'
-import { remessa240BB, remessa240Bradesco, remessa240Caixa, remessa240Itau, remessa240Santander, remessa240VortxUnsupported, remessa400BB, remessa400Bradesco, remessa400Caixa, remessa400Itau, remessa400Santander } from './fixtures'
+import { remessa240BB, remessa240Bradesco, remessa240Caixa, remessa240CaixaSicob, remessa240Itau, remessa240Santander, remessa240Sicoob, remessa240Sicredi, remessa240VortxUnsupported, remessa400BB, remessa400Bradesco, remessa400Caixa, remessa400CaixaSicob, remessa400Itau, remessa400Santander, remessa400Sicoob, remessa400Sicredi } from './fixtures'
 
 describe('catálogo ACBr', () => {
   it('tem bancos com COMPE', () => {
@@ -75,6 +75,43 @@ describe('validateRemessa CNAB240 Santander', () => {
     expect(result.summary.layout).toBe('c240')
     expect(result.summary.bankCode).toBe('033')
     expect(result.summary.titleEstimate).toBe(1)
+    expect(result.ok).toBe(true)
+  })
+})
+
+describe('validateRemessa CNAB400 Sicredi', () => {
+  it('aceita remessa Sicredi 400 válida', () => {
+    const result = validateRemessa(remessa400Sicredi())
+    expect(result.summary.layout).toBe('c400')
+    expect(result.summary.bankCode).toBe('748')
+    expect(result.ok).toBe(true)
+  })
+})
+
+describe('validateRemessa CNAB240 Sicredi', () => {
+  it('aceita remessa Sicredi 240 válida (FEBRABAN)', () => {
+    const result = validateRemessa(remessa240Sicredi())
+    expect(result.summary.layout).toBe('c240')
+    expect(result.summary.bankCode).toBe('748')
+    expect(result.summary.titleEstimate).toBe(1)
+    expect(result.ok).toBe(true)
+  })
+})
+
+describe('validateRemessa CNAB400 Sicoob', () => {
+  it('aceita remessa Sicoob 400 válida', () => {
+    const result = validateRemessa(remessa400Sicoob())
+    expect(result.summary.layout).toBe('c400')
+    expect(result.summary.bankCode).toBe('756')
+    expect(result.ok).toBe(true)
+  })
+})
+
+describe('validateRemessa CNAB240 Sicoob', () => {
+  it('aceita remessa Sicoob 240 válida (FEBRABAN)', () => {
+    const result = validateRemessa(remessa240Sicoob())
+    expect(result.summary.layout).toBe('c240')
+    expect(result.summary.bankCode).toBe('756')
     expect(result.ok).toBe(true)
   })
 })
