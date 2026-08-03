@@ -91,9 +91,35 @@ export const BB_REMESSA_240 = [
   '01', '02', '04', '05', '06', '07', '08', '09', '10', '12', '31',
 ]
 
+/** Ocorrências remessa CNAB400 — Santander */
+export const SANTANDER_REMESSA_400 = [
+  '01', '02', '04', '05', '06', '07', '08', '09', '18', '47', '48', '49', '98',
+]
+
+/** Códigos movimento remessa CNAB240 — Santander */
+export const SANTANDER_REMESSA_240 = [
+  '01', '02', '04', '05', '06', '07', '08', '09', '10', '11', '18', '31', '47', '48', '49', '98',
+]
+
+/** Ocorrências remessa CNAB400 — Caixa */
+export const CAIXA_REMESSA_400 = [
+  '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13',
+]
+
+/** Códigos movimento remessa CNAB240 — Caixa */
+export const CAIXA_REMESSA_240 = [
+  '01', '02', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '31', '33', '34', '37', '47',
+]
+
 /** Ocorrências remessa CNAB400 genéricas FEBRABAN (fallback demais bancos) */
 export const FEBRABAN_REMESSA_400 = [
-  ...new Set([...BRADESCO_REMESSA_400, ...ITAU_REMESSA_400, ...BB_REMESSA_400]),
+  ...new Set([
+    ...BRADESCO_REMESSA_400,
+    ...ITAU_REMESSA_400,
+    ...BB_REMESSA_400,
+    ...SANTANDER_REMESSA_400,
+    ...CAIXA_REMESSA_400,
+  ]),
 ]
 
 const ENUM_REFS: Record<string, string[]> = {
@@ -103,6 +129,10 @@ const ENUM_REFS: Record<string, string[]> = {
   'itau-remessa-240': ITAU_REMESSA_240,
   'bb-remessa-400': BB_REMESSA_400,
   'bb-remessa-240': BB_REMESSA_240,
+  'santander-remessa-400': SANTANDER_REMESSA_400,
+  'santander-remessa-240': SANTANDER_REMESSA_240,
+  'caixa-remessa-400': CAIXA_REMESSA_400,
+  'caixa-remessa-240': CAIXA_REMESSA_240,
   'febraban-remessa-400': FEBRABAN_REMESSA_400,
 }
 

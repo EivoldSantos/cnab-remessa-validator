@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { splitLines } from './detect'
 import { validateFileLines } from './validate-line'
-import { remessa240Bradesco, remessa240BB, remessa240Itau, remessa400BB, remessa400Bradesco, remessa400Itau } from './fixtures'
+import { remessa240BB, remessa240Bradesco, remessa240Caixa, remessa240Itau, remessa240Santander, remessa400BB, remessa400Bradesco, remessa400Caixa, remessa400Itau, remessa400Santander } from './fixtures'
 
 describe('validate-line', () => {
   it('valida header, detalhe e trailer CNAB400 da fixture Bradesco', () => {
@@ -66,6 +66,56 @@ describe('validate-line', () => {
     expect(issues.filter((i) => i.severity === 'error')).toHaveLength(0)
   })
 
+  it('valida header, detalhe e trailer CNAB400 da fixture Santander', () => {
+    const lines = splitLines(remessa400Santander())
+    const { issues, lineDetails } = validateFileLines(lines, {
+      layout: 'c400',
+      bankId: 'cobSantander',
+    })
+    expect(lineDetails.length).toBe(3)
+    expect(lineDetails[0]?.recordLabel).toBe('Header Santander CNAB400')
+    expect(lineDetails[1]?.recordLabel).toBe('Detalhe Santander CNAB400')
+    expect(issues.filter((i) => i.severity === 'error')).toHaveLength(0)
+  })
+
+  it('valida segmentos P/Q CNAB240 da fixture Santander', () => {
+    const lines = splitLines(remessa240Santander())
+    const { issues, lineDetails } = validateFileLines(lines, {
+      layout: 'c240',
+      bankId: 'cobSantander',
+    })
+    expect(lineDetails.length).toBe(6)
+    expect(lineDetails[0]?.recordLabel).toBe('Header arquivo Santander CNAB240')
+    expect(lineDetails[2]?.recordLabel).toBe('Segmento P Santander')
+    expect(lineDetails[3]?.recordLabel).toBe('Segmento Q Santander')
+    expect(issues.filter((i) => i.severity === 'error')).toHaveLength(0)
+  })
+
+  it('valida header, detalhe e trailer CNAB400 da fixture Caixa', () => {
+    const lines = splitLines(remessa400Caixa())
+    const { issues, lineDetails } = validateFileLines(lines, {
+      layout: 'c400',
+      bankId: 'cobCaixaEconomica',
+    })
+    expect(lineDetails.length).toBe(3)
+    expect(lineDetails[0]?.recordLabel).toBe('Header Caixa CNAB400')
+    expect(lineDetails[1]?.recordLabel).toBe('Detalhe Caixa CNAB400')
+    expect(issues.filter((i) => i.severity === 'error')).toHaveLength(0)
+  })
+
+  it('valida segmentos P/Q CNAB240 da fixture Caixa', () => {
+    const lines = splitLines(remessa240Caixa())
+    const { issues, lineDetails } = validateFileLines(lines, {
+      layout: 'c240',
+      bankId: 'cobCaixaEconomica',
+    })
+    expect(lineDetails.length).toBe(6)
+    expect(lineDetails[0]?.recordLabel).toBe('Header arquivo Caixa CNAB240')
+    expect(lineDetails[2]?.recordLabel).toBe('Segmento P Caixa')
+    expect(lineDetails[3]?.recordLabel).toBe('Segmento Q Caixa')
+    expect(issues.filter((i) => i.severity === 'error')).toHaveLength(0)
+  })
+
   it('detecta tipo arquivo inválido no header', () => {
     const content = remessa400Bradesco()
     const mutated = '02' + content.slice(2)
@@ -115,6 +165,34 @@ describe('validateRemessa nível B', () => {
   it('integra validação AB na remessa 240 BB', async () => {
     const { validateRemessa } = await import('./validate')
     const result = validateRemessa(remessa240BB(), { level: 'AB' })
+    expect(result.lineDetails?.length).toBe(6)
+    expect(result.ok).toBe(true)
+  })
+
+  it('integra validação AB na remessa 400 Santander', async () => {
+    const { validateRemessa } = await import('./validate')
+    const result = validateRemessa(remessa400Santander(), { level: 'AB' })
+    expect(result.lineDetails?.length).toBe(3)
+    expect(result.ok).toBe(true)
+  })
+
+  it('integra validação AB na remessa 240 Santander', async () => {
+    const { validateRemessa } = await import('./validate')
+    const result = validateRemessa(remessa240Santander(), { level: 'AB' })
+    expect(result.lineDetails?.length).toBe(6)
+    expect(result.ok).toBe(true)
+  })
+
+  it('integra validação AB na remessa 400 Caixa', async () => {
+    const { validateRemessa } = await import('./validate')
+    const result = validateRemessa(remessa400Caixa(), { level: 'AB' })
+    expect(result.lineDetails?.length).toBe(3)
+    expect(result.ok).toBe(true)
+  })
+
+  it('integra validação AB na remessa 240 Caixa', async () => {
+    const { validateRemessa } = await import('./validate')
+    const result = validateRemessa(remessa240Caixa(), { level: 'AB' })
     expect(result.lineDetails?.length).toBe(6)
     expect(result.ok).toBe(true)
   })

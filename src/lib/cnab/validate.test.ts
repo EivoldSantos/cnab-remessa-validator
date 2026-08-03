@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { validateRemessa, findBanksByCompe, ACBR_BANKS } from './index'
-import { remessa240BB, remessa240Bradesco, remessa240Itau, remessa240VortxUnsupported, remessa400BB, remessa400Bradesco, remessa400Itau } from './fixtures'
+import { remessa240BB, remessa240Bradesco, remessa240Caixa, remessa240Itau, remessa240Santander, remessa240VortxUnsupported, remessa400BB, remessa400Bradesco, remessa400Caixa, remessa400Itau, remessa400Santander } from './fixtures'
 
 describe('catálogo ACBr', () => {
   it('tem bancos com COMPE', () => {
@@ -57,6 +57,44 @@ describe('validateRemessa CNAB240', () => {
     expect(result.summary.layout).toBe('c240')
     expect(result.ok).toBe(false)
     expect(result.issues.some((i) => i.code === 'LAYOUT_UNSUPPORTED')).toBe(true)
+  })
+})
+
+describe('validateRemessa CNAB400 Santander', () => {
+  it('aceita remessa Santander 400 válida', () => {
+    const result = validateRemessa(remessa400Santander())
+    expect(result.summary.layout).toBe('c400')
+    expect(result.summary.bankCode).toBe('033')
+    expect(result.ok).toBe(true)
+  })
+})
+
+describe('validateRemessa CNAB240 Santander', () => {
+  it('aceita remessa Santander 240 válida', () => {
+    const result = validateRemessa(remessa240Santander())
+    expect(result.summary.layout).toBe('c240')
+    expect(result.summary.bankCode).toBe('033')
+    expect(result.summary.titleEstimate).toBe(1)
+    expect(result.ok).toBe(true)
+  })
+})
+
+describe('validateRemessa CNAB400 Caixa', () => {
+  it('aceita remessa Caixa 400 válida', () => {
+    const result = validateRemessa(remessa400Caixa())
+    expect(result.summary.layout).toBe('c400')
+    expect(result.summary.bankCode).toBe('104')
+    expect(result.ok).toBe(true)
+  })
+})
+
+describe('validateRemessa CNAB240 Caixa', () => {
+  it('aceita remessa Caixa 240 válida', () => {
+    const result = validateRemessa(remessa240Caixa())
+    expect(result.summary.layout).toBe('c240')
+    expect(result.summary.bankCode).toBe('104')
+    expect(result.summary.titleEstimate).toBe(1)
+    expect(result.ok).toBe(true)
   })
 })
 
