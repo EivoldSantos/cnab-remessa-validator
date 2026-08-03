@@ -1,4 +1,5 @@
 import { bankSupportsLayout, findBanksByCompe, formatBankLabel } from './banks'
+import { resolvePrimaryBankId } from './bank-resolver'
 import { detectRemessa } from './detect'
 import { estimateTitles240, lineTipo240, parse240 } from './parse-240'
 import { lineTipo400, parse400 } from './parse-400'
@@ -357,9 +358,11 @@ export function validateRemessa(
   let invalidFields = 0
 
   if (level !== 'A' && layout && bankInfo.bankIds.length > 0) {
+    const banks = findBanksByCompe(bankCode ?? '')
+    const primaryBankId = resolvePrimaryBankId(banks, layout, lines)
     const bankResult = validateFileLines(lines, {
       layout,
-      bankId: bankInfo.bankIds[0],
+      bankId: primaryBankId,
       bankCode,
     })
     issues.push(...bankResult.issues)

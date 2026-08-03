@@ -51,6 +51,14 @@ function isValidDate(value: string, format: string): boolean {
     const d = new Date(year, month - 1, day)
     return d.getFullYear() === year && d.getMonth() === month - 1 && d.getDate() === day
   }
+  if (format === 'AAAAMMDD' && value.length === 8) {
+    const year = Number(value.slice(0, 4))
+    const month = Number(value.slice(4, 6))
+    const day = Number(value.slice(6, 8))
+    if (month < 1 || month > 12 || day < 1 || day > 31) return false
+    const d = new Date(year, month - 1, day)
+    return d.getFullYear() === year && d.getMonth() === month - 1 && d.getDate() === day
+  }
   return /^\d+$/.test(value)
 }
 

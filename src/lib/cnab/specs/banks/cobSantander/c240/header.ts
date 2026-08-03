@@ -1,0 +1,63 @@
+import type { RecordSpec } from '../../../../types'
+
+/** Header arquivo CNAB240 Santander — ACBrBancoSantander.GerarRegistroHeader240 */
+export const SANTANDER_C240_HEADER_ARQ: RecordSpec = {
+  id: 'cobSantander-c240-header-arquivo-0000',
+  layout: 'c240',
+  recordType: '0000-0',
+  label: 'Header arquivo Santander CNAB240',
+  lineLength: 240,
+  bankId: 'cobSantander',
+  acbrRef: 'ACBrBancoSantander.pas:GerarRegistroHeader240',
+  fields: [
+    { id: 'codigo_banco', label: 'Código banco', start: 1, end: 3, type: 'numeric', issueCode: 'F240_HDR_BANCO' },
+    { id: 'lote', label: 'Lote', start: 4, end: 7, type: 'enum', enum: ['0000'] },
+    { id: 'tipo_registro', label: 'Tipo registro', start: 8, end: 8, type: 'enum', enum: ['0'] },
+    { id: 'uso_banco', label: 'Uso banco', start: 9, end: 16, type: 'filler', required: false },
+    { id: 'tipo_inscricao', label: 'Tipo inscrição', start: 17, end: 17, type: 'enum', enum: ['1', '2'] },
+    { id: 'cnpj_cpf', label: 'CNPJ/CPF', start: 18, end: 32, type: 'numeric' },
+    { id: 'codigo_transmissao', label: 'Código transmissão', start: 33, end: 47, type: 'numeric', issueCode: 'F240_SANT_TRANS' },
+    { id: 'uso_banco2', label: 'Uso banco', start: 48, end: 72, type: 'filler', required: false },
+    { id: 'nome_empresa', label: 'Nome empresa', start: 73, end: 102, type: 'alpha' },
+    { id: 'nome_banco', label: 'Nome banco', start: 103, end: 132, type: 'alpha' },
+    { id: 'uso_banco3', label: 'Uso banco', start: 133, end: 142, type: 'filler', required: false },
+    { id: 'remessa_retorno', label: 'Remessa/Retorno', start: 143, end: 143, type: 'enum', enum: ['1'], issueCode: 'F240_HDR_REM_RET' },
+    { id: 'data_geracao', label: 'Data geração', start: 144, end: 151, type: 'date', format: 'DDMMAAAA' },
+    { id: 'uso_banco4', label: 'Uso banco', start: 152, end: 157, type: 'filler', required: false },
+    { id: 'numero_arquivo', label: 'Nº sequencial arquivo', start: 158, end: 163, type: 'numeric' },
+    { id: 'versao_layout', label: 'Versão layout', start: 164, end: 166, type: 'numeric' },
+    { id: 'resto', label: 'Uso banco', start: 167, end: 240, type: 'filler', required: false },
+  ],
+}
+
+/** Header lote CNAB240 Santander */
+export const SANTANDER_C240_HEADER_LOTE: RecordSpec = {
+  id: 'cobSantander-c240-header-lote-0001',
+  layout: 'c240',
+  recordType: '0001-1',
+  label: 'Header lote Santander CNAB240',
+  lineLength: 240,
+  bankId: 'cobSantander',
+  acbrRef: 'ACBrBancoSantander.pas:GerarRegistroHeader240',
+  fields: [
+    { id: 'codigo_banco', label: 'Código banco', start: 1, end: 3, type: 'numeric' },
+    { id: 'lote', label: 'Lote', start: 4, end: 7, type: 'enum', enum: ['0001'] },
+    { id: 'tipo_registro', label: 'Tipo registro', start: 8, end: 8, type: 'enum', enum: ['1'] },
+    { id: 'operacao', label: 'Operação', start: 9, end: 9, type: 'enum', enum: ['R'], issueCode: 'F240_LOTE_OP' },
+    { id: 'servico', label: 'Serviço', start: 10, end: 11, type: 'enum', enum: ['01'], issueCode: 'F240_LOTE_SERV' },
+    { id: 'uso_banco', label: 'Uso banco', start: 12, end: 13, type: 'filler', required: false },
+    { id: 'versao_lote', label: 'Versão layout lote', start: 14, end: 16, type: 'numeric' },
+    { id: 'uso_banco2', label: 'Uso banco', start: 17, end: 17, type: 'filler', required: false },
+    { id: 'tipo_inscricao', label: 'Tipo inscrição', start: 18, end: 18, type: 'enum', enum: ['1', '2'] },
+    { id: 'cnpj_cpf', label: 'CNPJ/CPF', start: 19, end: 33, type: 'numeric' },
+    { id: 'uso_banco3', label: 'Uso banco', start: 34, end: 53, type: 'filler', required: false },
+    { id: 'codigo_transmissao', label: 'Código transmissão', start: 54, end: 68, type: 'numeric', issueCode: 'F240_SANT_TRANS' },
+    { id: 'uso_banco4', label: 'Uso banco', start: 69, end: 73, type: 'filler', required: false },
+    { id: 'nome_cedente', label: 'Nome cedente', start: 74, end: 103, type: 'alpha' },
+    { id: 'mensagem1', label: 'Mensagem 1', start: 104, end: 143, type: 'alpha', required: false },
+    { id: 'mensagem2', label: 'Mensagem 2', start: 144, end: 183, type: 'alpha', required: false },
+    { id: 'numero_remessa', label: 'Nº remessa', start: 184, end: 191, type: 'numeric' },
+    { id: 'data_gravacao', label: 'Data gravação', start: 192, end: 199, type: 'date', format: 'DDMMAAAA' },
+    { id: 'uso_exclusivo', label: 'Uso exclusivo', start: 200, end: 240, type: 'filler', required: false },
+  ],
+}
