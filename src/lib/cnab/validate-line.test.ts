@@ -292,6 +292,20 @@ describe('validateRemessa nível B', () => {
     expect(result.ok).toBe(true)
   })
 
+  it('integra validação AB na remessa 400 Caixa SICOB', async () => {
+    const { validateRemessa } = await import('./validate')
+    const result = validateRemessa(remessa400CaixaSicob(), { level: 'AB' })
+    expect(result.lineDetails?.length).toBe(3)
+    expect(result.ok).toBe(true)
+  })
+
+  it('integra validação AB na remessa 240 Caixa SICOB', async () => {
+    const { validateRemessa } = await import('./validate')
+    const result = validateRemessa(remessa240CaixaSicob(), { level: 'AB' })
+    expect(result.lineDetails?.length).toBe(6)
+    expect(result.ok).toBe(true)
+  })
+
   it('nível A ignora validação de campos', async () => {
     const { validateRemessa } = await import('./validate')
     const content = remessa400Bradesco()
