@@ -91,6 +91,11 @@ export const BB_REMESSA_240 = [
   '01', '02', '04', '05', '06', '07', '08', '09', '10', '12', '31',
 ]
 
+/** Ocorrências remessa CNAB400 genéricas FEBRABAN (fallback demais bancos) */
+export const FEBRABAN_REMESSA_400 = [
+  ...new Set([...BRADESCO_REMESSA_400, ...ITAU_REMESSA_400, ...BB_REMESSA_400]),
+]
+
 const ENUM_REFS: Record<string, string[]> = {
   'bradesco-remessa-400': BRADESCO_REMESSA_400,
   'bradesco-remessa-240': BRADESCO_REMESSA_240,
@@ -98,6 +103,7 @@ const ENUM_REFS: Record<string, string[]> = {
   'itau-remessa-240': ITAU_REMESSA_240,
   'bb-remessa-400': BB_REMESSA_400,
   'bb-remessa-240': BB_REMESSA_240,
+  'febraban-remessa-400': FEBRABAN_REMESSA_400,
 }
 
 export function getEnumRef(ref: string): string[] | undefined {
