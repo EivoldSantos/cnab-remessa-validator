@@ -45,6 +45,21 @@ describe('field-engine', () => {
     expect(issues.some((i) => i.field === 'data_geracao')).toBe(true)
   })
 
+  it('aceita nome de banco com pontuação (S.A.)', () => {
+    const fields = extractFields('x'.repeat(400), FEBRABAN_C400_HEADER_0)
+    const nome = fields.find((f) => f.id === 'nome_banco')!
+    nome.value = 'BANCO ITAU S.A.'
+    nome.raw = 'BANCO ITAU S.A.'
+
+    const issues = validateFields(fields, FEBRABAN_C400_HEADER_0, {
+      lineIndex: 1,
+      layout: 'c400',
+      recordType: '0',
+    })
+    expect(issues.some((i) => i.field === 'nome_banco')).toBe(false)
+    expect(nome.valid).toBe(true)
+  })
+
   it('rejeita enum inválido', () => {
     const line =
       '2' +
