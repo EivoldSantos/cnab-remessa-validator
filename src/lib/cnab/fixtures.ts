@@ -1064,6 +1064,195 @@ export function remessa240Caixa(): string {
   return [headerArq, headerLote, segP, segQ, trailerLote, trailerArq].join('\n')
 }
 
+/** Troca COMPE e nome do banco em remessa 240 genérica FEBRABAN. */
+export function remessa240WithCompe(
+  compe: string,
+  bankName: string,
+  base = remessa240Bradesco(),
+): string {
+  const code = compe.padStart(3, '0').slice(-3)
+  const paddedName = bankName.toUpperCase().padEnd(30, ' ').slice(0, 30)
+  return base
+    .split('\n')
+    .map((line, idx) => {
+      let result = line.replace(/^237/, code)
+      if (idx === 0 && result.length === 240) {
+        const chars = result.split('')
+        for (let i = 0; i < 30; i++) chars[102 + i] = paddedName[i] ?? ' '
+        result = chars.join('')
+      }
+      return result
+    })
+    .join('\n')
+}
+
+/** Detalhe CNAB400 Sicredi (modalidade A). */
+export function remessa400SicrediDetalhe(seq: number): string {
+  return buildLine400([
+    { start: 1, end: 1, value: '1' },
+    { start: 2, end: 2, value: 'A' },
+    { start: 3, end: 47, value: pad('', 45) },
+    { start: 48, end: 56, value: padLeft('123456789', 9) },
+    { start: 57, end: 108, value: pad('', 52) },
+    { start: 109, end: 110, value: '01' },
+    { start: 111, end: 120, value: pad('FAT001', 10) },
+    { start: 121, end: 126, value: '010825' },
+    { start: 127, end: 139, value: padLeft('10000', 13) },
+    { start: 140, end: 148, value: pad('', 9) },
+    { start: 149, end: 149, value: 'A' },
+    { start: 150, end: 150, value: 'N' },
+    { start: 151, end: 218, value: pad('', 68) },
+    { start: 219, end: 219, value: '2' },
+    { start: 220, end: 220, value: ' ' },
+    { start: 221, end: 234, value: padLeft('12345678000199', 14) },
+    { start: 235, end: 274, value: pad('CLIENTE TESTE LTDA', 40) },
+    { start: 275, end: 394, value: pad('', 120) },
+    { start: 395, end: 400, value: padLeft(String(seq), 6) },
+  ])
+}
+
+export function remessa400Sicredi(): string {
+  const header = buildLine400([
+    { start: 1, end: 1, value: '0' },
+    { start: 2, end: 2, value: '1' },
+    { start: 3, end: 9, value: 'REMESSA' },
+    { start: 10, end: 11, value: '01' },
+    { start: 12, end: 26, value: pad('COBRANCA', 15) },
+    { start: 27, end: 31, value: padLeft('12345', 5) },
+    { start: 32, end: 45, value: padLeft('12345678000199', 14) },
+    { start: 46, end: 76, value: pad('', 31) },
+    { start: 77, end: 79, value: '748' },
+    { start: 80, end: 94, value: pad('SICREDI', 15) },
+    { start: 95, end: 102, value: '20250803' },
+    { start: 103, end: 110, value: pad('', 8) },
+    { start: 111, end: 117, value: padLeft('1', 7) },
+    { start: 118, end: 390, value: pad('', 273) },
+    { start: 391, end: 394, value: '2.00' },
+    { start: 395, end: 400, value: padLeft('1', 6) },
+  ])
+
+  return [header, remessa400SicrediDetalhe(2), buildLine400([
+    { start: 1, end: 1, value: '9' },
+    { start: 2, end: 394, value: pad('', 393) },
+    { start: 395, end: 400, value: padLeft('3', 6) },
+  ])].join('\n')
+}
+
+/** Detalhe CNAB400 Sicoob mínimo. */
+export function remessa400SicoobDetalhe(seq: number): string {
+  return buildLine400([
+    { start: 1, end: 1, value: '1' },
+    { start: 2, end: 3, value: '02' },
+    { start: 4, end: 17, value: padLeft('12345678000199', 14) },
+    { start: 18, end: 21, value: padLeft('1234', 4) },
+    { start: 22, end: 22, value: '0' },
+    { start: 23, end: 30, value: padLeft('12345678', 8) },
+    { start: 31, end: 31, value: '0' },
+    { start: 32, end: 37, value: padLeft('123456', 6) },
+    { start: 38, end: 62, value: pad('SEU-NUM-001', 25) },
+    { start: 63, end: 74, value: padLeft('123456789012', 12) },
+    { start: 75, end: 108, value: pad('', 34) },
+    { start: 109, end: 110, value: '01' },
+    { start: 111, end: 120, value: pad('FAT001', 10) },
+    { start: 121, end: 126, value: '010825' },
+    { start: 127, end: 139, value: padLeft('10000', 13) },
+    { start: 140, end: 142, value: '756' },
+    { start: 143, end: 218, value: pad('', 76) },
+    { start: 219, end: 220, value: '02' },
+    { start: 221, end: 234, value: padLeft('12345678000199', 14) },
+    { start: 235, end: 274, value: pad('CLIENTE TESTE LTDA', 40) },
+    { start: 275, end: 392, value: pad('', 118) },
+    { start: 393, end: 398, value: padLeft(String(seq), 6) },
+    { start: 399, end: 400, value: '  ' },
+  ])
+}
+
+export function remessa400Sicoob(): string {
+  const header = buildLine400([
+    { start: 1, end: 1, value: '0' },
+    { start: 2, end: 2, value: '1' },
+    { start: 3, end: 9, value: 'REMESSA' },
+    { start: 10, end: 11, value: '01' },
+    { start: 12, end: 19, value: pad('COBRANCA', 8) },
+    { start: 20, end: 26, value: pad('', 7) },
+    { start: 27, end: 30, value: padLeft('1234', 4) },
+    { start: 31, end: 31, value: '0' },
+    { start: 32, end: 40, value: padLeft('123456789', 9) },
+    { start: 41, end: 46, value: pad('', 6) },
+    { start: 47, end: 76, value: pad('EMPRESA TESTE LTDA', 30) },
+    { start: 77, end: 94, value: pad('756BANCOOBCED', 18) },
+    { start: 95, end: 100, value: '010825' },
+    { start: 101, end: 107, value: padLeft('1', 7) },
+    { start: 108, end: 394, value: pad('', 287) },
+    { start: 395, end: 400, value: padLeft('1', 6) },
+  ])
+
+  return [header, remessa400SicoobDetalhe(2), buildLine400([
+    { start: 1, end: 1, value: '9' },
+    { start: 2, end: 394, value: pad('', 393) },
+    { start: 395, end: 400, value: padLeft('3', 6) },
+  ])].join('\n')
+}
+
+/** Detalhe CNAB400 Caixa SICOB mínimo. */
+export function remessa400CaixaSicobDetalhe(seq: number): string {
+  return buildLine400([
+    { start: 1, end: 1, value: '1' },
+    { start: 2, end: 3, value: '02' },
+    { start: 4, end: 17, value: padLeft('12345678000199', 14) },
+    { start: 18, end: 33, value: padLeft('1234567890123456', 16) },
+    { start: 34, end: 108, value: pad('', 75) },
+    { start: 109, end: 110, value: '01' },
+    { start: 111, end: 120, value: pad('FAT001', 10) },
+    { start: 121, end: 126, value: '010825' },
+    { start: 127, end: 139, value: padLeft('10000', 13) },
+    { start: 140, end: 142, value: '104' },
+    { start: 143, end: 218, value: pad('', 76) },
+    { start: 219, end: 220, value: '02' },
+    { start: 221, end: 234, value: padLeft('12345678000199', 14) },
+    { start: 235, end: 274, value: pad('CLIENTE TESTE LTDA', 40) },
+    { start: 275, end: 394, value: pad('', 120) },
+    { start: 395, end: 400, value: padLeft(String(seq), 6) },
+  ])
+}
+
+export function remessa400CaixaSicob(): string {
+  const header = buildLine400([
+    { start: 1, end: 1, value: '0' },
+    { start: 2, end: 2, value: '1' },
+    { start: 3, end: 9, value: 'REMESSA' },
+    { start: 10, end: 11, value: '01' },
+    { start: 12, end: 26, value: pad('COBRANCA', 15) },
+    { start: 27, end: 42, value: padLeft('1234567890123456', 16) },
+    { start: 43, end: 46, value: pad('', 4) },
+    { start: 47, end: 76, value: pad('EMPRESA TESTE LTDA', 30) },
+    { start: 77, end: 79, value: '104' },
+    { start: 80, end: 94, value: pad('CAIXA SICOB', 15) },
+    { start: 95, end: 100, value: '010825' },
+    { start: 101, end: 389, value: pad('', 289) },
+    { start: 390, end: 394, value: padLeft('1', 5) },
+    { start: 395, end: 400, value: padLeft('1', 6) },
+  ])
+
+  return [header, remessa400CaixaSicobDetalhe(2), buildLine400([
+    { start: 1, end: 1, value: '9' },
+    { start: 2, end: 394, value: pad('', 393) },
+    { start: 395, end: 400, value: padLeft('3', 6) },
+  ])].join('\n')
+}
+
+export function remessa240Sicredi(): string {
+  return remessa240WithCompe('748', 'SICREDI')
+}
+
+export function remessa240Sicoob(): string {
+  return remessa240WithCompe('756', 'BANCOOB')
+}
+
+export function remessa240CaixaSicob(): string {
+  return remessa240WithCompe('104', 'CAIXA ECONOMICA')
+}
+
 /** CNAB240 com COMPE Vórtx (310) — ACBr só c400. */
 export function remessa240VortxUnsupported(): string {
   return remessa240Bradesco().replace(/^237/gm, '310')
