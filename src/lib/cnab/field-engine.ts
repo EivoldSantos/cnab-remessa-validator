@@ -123,9 +123,9 @@ function validateSingleField(
       }
       break
     case 'alpha':
-      // CNAB alfa (picture X): letras/dígitos/espaço + pontuação comum em nomes
-      // (ex.: "BANCO ITAU S.A.", "R.FOA ENGENHARIA").
-      if (!/^[A-Z0-9 .,\-\/&'()]+$/i.test(value)) {
+      // CNAB alfa (picture X): letras (incl. acentuadas latinas), dígitos, espaço
+      // e pontuação comum — ex.: "COBRANÇA", "BANCO ITAU S.A.".
+      if (!/^[\p{L}\p{N} .,\-\/&'()]+$/u.test(value)) {
         issues.push({
           severity: 'error',
           code,

@@ -60,6 +60,21 @@ describe('field-engine', () => {
     expect(nome.valid).toBe(true)
   })
 
+  it('aceita literal de serviço com cedilha (COBRANÇA)', () => {
+    const fields = extractFields('x'.repeat(400), FEBRABAN_C400_HEADER_0)
+    const lit = fields.find((f) => f.id === 'literal_servico')!
+    lit.value = 'COBRANÇA'
+    lit.raw = 'COBRANÇA'.padEnd(15, ' ')
+
+    const issues = validateFields(fields, FEBRABAN_C400_HEADER_0, {
+      lineIndex: 1,
+      layout: 'c400',
+      recordType: '0',
+    })
+    expect(issues.some((i) => i.field === 'literal_servico')).toBe(false)
+    expect(lit.valid).toBe(true)
+  })
+
   it('rejeita enum inválido', () => {
     const line =
       '2' +
