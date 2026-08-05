@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { validateRemessa, findBanksByCompe, ACBR_BANKS } from './index'
-import { remessa240BB, remessa240Bradesco, remessa240Caixa, remessa240CaixaSicob, remessa240Itau, remessa240Santander, remessa240Sicoob, remessa240Sicredi, remessa240VortxUnsupported, remessa400BB, remessa400Bradesco, remessa400Caixa, remessa400CaixaSicob, remessa400Itau, remessa400Santander, remessa400Sicoob, remessa400Sicredi } from './fixtures'
+import { remessa240BB, remessa240Bradesco, remessa240Caixa, remessa240Itau, remessa240Santander, remessa240Sicoob, remessa240Sicredi, remessa240VortxUnsupported, remessa400BB, remessa400Bradesco, remessa400Caixa, remessa400Itau, remessa400Santander, remessa400Sicoob, remessa400Sicredi } from './fixtures'
 
 describe('catálogo ACBr', () => {
   it('tem bancos com COMPE', () => {
