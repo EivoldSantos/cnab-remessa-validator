@@ -34,3 +34,8 @@ export { classifyLine, getRecordSpec, listAvailableSpecs } from './spec-registry
 export { validateLine, validateFileLines } from './validate-line'
 export { validateRemessa } from './validate'
 export { validateRetorno } from './validate-retorno'
+export {
+  buildMotorDebugReport,
+  motorDebugReportJson,
+  type MotorDebugReport,
+} from './motor-debug-report'

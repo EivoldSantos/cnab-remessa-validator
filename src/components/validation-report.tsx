@@ -1,4 +1,6 @@
+import { useState } from 'react'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import {
@@ -9,9 +11,9 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import type { ValidationResult } from '@/lib/cnab'
+import { motorDebugReportJson, type ValidationResult } from '@/lib/cnab'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { CheckCircle2, XCircle } from 'lucide-react'
+import { CheckCircle2, ClipboardCheck, Copy, XCircle } from 'lucide-react'
 
 function severityBadge(severity: 'error' | 'warning' | 'info') {
   if (severity === 'error') return <Badge variant="destructive">error</Badge>
@@ -28,6 +30,14 @@ export function ValidationReport({ fileName, result }: ValidationReportProps) {
   const { summary, issues, preview, ok, lineDetails } = result
   const errors = issues.filter((i) => i.severity === 'error').length
   const warnings = issues.filter((i) => i.severity === 'warning').length
+  const [copied, setCopied] = useState(false)
+
+  const copyMotorReport = async () => {
+    const json = motorDebugReportJson(result, fileName)
+    await navigator.clipboard.writeText(json)
+    setCopied(true)
+    window.setTimeout(() => setCopied(false), 2000)
+  }
 
   return (
     <div className="flex flex-col gap-4">
@@ -47,6 +57,21 @@ export function ValidationReport({ fileName, result }: ValidationReportProps) {
             : ''}
         </AlertDescription>
       </Alert>
+
+      <div className="flex flex-wrap items-center gap-2">
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => void copyMotorReport()}
+        >
+          {copied ? <ClipboardCheck /> : <Copy />}
+          {copied ? 'JSON copiado' : 'Copiar JSON dos erros'}
+        </Button>
+        <p className="text-xs text-muted-foreground">
+          Mini relatório para corrigir interpretação do motor (specs/engine)
+        </p>
+      </div>
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-6">
         <SummaryItem
