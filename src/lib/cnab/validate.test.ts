@@ -116,6 +116,24 @@ describe('validateRemessa CNAB240 Sicoob', () => {
   })
 })
 
+describe('validateRemessa CNAB400 Caixa SICOB', () => {
+  it('aceita remessa Caixa SICOB 400 válida', () => {
+    const result = validateRemessa(remessa400CaixaSicob())
+    expect(result.summary.layout).toBe('c400')
+    expect(result.summary.bankCode).toBe('104')
+    expect(result.ok).toBe(true)
+  })
+})
+
+describe('validateRemessa CNAB240 Caixa SICOB', () => {
+  it('aceita remessa Caixa SICOB 240 válida (FEBRABAN)', () => {
+    const result = validateRemessa(remessa240CaixaSicob())
+    expect(result.summary.layout).toBe('c240')
+    expect(result.summary.bankCode).toBe('104')
+    expect(result.ok).toBe(true)
+  })
+})
+
 describe('validateRemessa CNAB400 Caixa', () => {
   it('aceita remessa Caixa 400 válida', () => {
     const result = validateRemessa(remessa400Caixa())
