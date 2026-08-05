@@ -1,13 +1,15 @@
 import { useCallback, useRef, useState } from 'react'
 import { FileUp } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import type { CnabKind } from '@/lib/cnab'
 
 interface RemessaDropzoneProps {
   onFileText: (text: string, fileName: string) => void
   disabled?: boolean
+  kind?: CnabKind
 }
 
-export function RemessaDropzone({ onFileText, disabled }: RemessaDropzoneProps) {
+export function RemessaDropzone({ onFileText, disabled, kind = 'remessa' }: RemessaDropzoneProps) {
   const inputRef = useRef<HTMLInputElement>(null)
   const [dragging, setDragging] = useState(false)
 
@@ -53,9 +55,11 @@ export function RemessaDropzone({ onFileText, disabled }: RemessaDropzoneProps) 
     >
       <FileUp className="size-10 text-muted-foreground" />
       <div>
-        <p className="text-sm font-medium">Solte o arquivo de remessa aqui</p>
+        <p className="text-sm font-medium">
+          Solte o arquivo de {kind === 'retorno' ? 'retorno' : 'remessa'} aqui
+        </p>
         <p className="mt-1 text-xs text-muted-foreground">
-          .rem, .txt ou qualquer texto CNAB240 / CNAB400
+          .rem, .ret, .txt — CNAB240 / CNAB400
         </p>
       </div>
       <input

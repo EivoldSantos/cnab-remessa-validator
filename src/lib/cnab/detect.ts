@@ -1,4 +1,4 @@
-import type { DetectResult, ParsedLine } from './types'
+import type { CnabKind, DetectResult, ParsedLine } from './types'
 import { CNAB240, CNAB400, field } from './positions'
 
 export function splitLines(content: string): ParsedLine[] {
@@ -13,10 +13,34 @@ export function splitLines(content: string): ParsedLine[] {
     .filter((line) => line.raw.length > 0)
 }
 
+export function detectKindFromHeader(header: string, layout: DetectResult['layout']): CnabKind | null {
+  if (!layout || !header) return null
+
+  if (layout === 'c400' && header.length >= 9) {
+    const prefix = field(header, [1, 9]).toUpperCase()
+    if (prefix === '02RETORNO') return 'retorno'
+    if (prefix === '01REMESSA') return 'remessa'
+    const tipo = field(header, CNAB400.tipoArquivo)
+    const literal = field(header, CNAB400.literalArquivo).trim().toUpperCase()
+    if (tipo === '2' || literal === 'RETORNO') return 'retorno'
+    if (tipo === '1' || literal === 'REMESSA') return 'remessa'
+    return null
+  }
+
+  if (layout === 'c240' && header.length >= 143) {
+    const remRet = field(header, CNAB240.codigoRemessaRetorno)
+    if (remRet === '2') return 'retorno'
+    if (remRet === '1') return 'remessa'
+  }
+
+  return null
+}
+
 export function detectLayout(lines: ParsedLine[]): DetectResult {
   if (lines.length === 0) {
     return {
       layout: null,
+      kind: null,
       bankCode: null,
       remessaNumber: null,
       lineLength: null,
@@ -50,8 +74,11 @@ export function detectLayout(lines: ParsedLine[]): DetectResult {
       field(header, CNAB240.numeroSequencialArquivo).replace(/^0+/, '') || '0'
   }
 
+  const kind = detectKindFromHeader(header, layout)
+
   return {
     layout,
+    kind,
     bankCode,
     remessaNumber,
     lineLength: dominant,
@@ -60,5 +87,9 @@ export function detectLayout(lines: ParsedLine[]): DetectResult {
 }
 
 export function detectRemessa(content: string): DetectResult {
+  return detectLayout(splitLines(content))
+}
+
+export function detectRetorno(content: string): DetectResult {
   return detectLayout(splitLines(content))
 }

@@ -1,5 +1,7 @@
 export type CnabLayout = 'c240' | 'c400'
 
+export type CnabKind = 'remessa' | 'retorno'
+
 export type FieldType =
   | 'numeric'
   | 'alpha'
@@ -47,6 +49,8 @@ export interface RecordSpec {
   label: string
   lineLength: 240 | 400
   fields: FieldDefinition[]
+  /** Default: remessa (compat com specs existentes). */
+  kind?: CnabKind
   extends?: string
   bankId?: string
   acbrRef?: string
@@ -88,6 +92,7 @@ export interface ParsedLine {
 
 export interface DetectResult {
   layout: CnabLayout | null
+  kind: CnabKind | null
   bankCode: string | null
   remessaNumber: string | null
   lineLength: number | null
@@ -96,6 +101,7 @@ export interface DetectResult {
 
 export interface RemessaSummary {
   layout: CnabLayout | null
+  kind: CnabKind | null
   bankCode: string | null
   bankName: string | null
   bankIds: string[]
@@ -121,11 +127,14 @@ export type ValidationLevel = 'A' | 'B' | 'AB'
 export interface ValidateOptions {
   expectedCompe?: string
   level?: ValidationLevel
+  /** Expected file kind; mismatch yields KIND_MISMATCH. */
+  expectedKind?: CnabKind
 }
 
 export interface FieldContext {
   lineIndex: number
   layout: CnabLayout
+  kind?: CnabKind
   bankId?: string
   lineCount?: number
   recordType?: string

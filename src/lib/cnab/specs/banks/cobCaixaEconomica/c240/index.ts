@@ -1,0 +1,10 @@
+import { CAIXA_C240_HEADER_ARQ, CAIXA_C240_HEADER_LOTE } from './header'
+import { CAIXA_C240_SEGMENTO_P } from './segmento-p'
+import { CAIXA_C240_SEGMENTO_Q } from './segmento-q'
+
+export const CAIXA_C240_SPECS = [
+  CAIXA_C240_HEADER_ARQ,
+  CAIXA_C240_HEADER_LOTE,
+  CAIXA_C240_SEGMENTO_P,
+  CAIXA_C240_SEGMENTO_Q,
+]

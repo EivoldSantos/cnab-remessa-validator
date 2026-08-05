@@ -1,6 +1,6 @@
-# Validador CNAB Remessa
+# Validador CNAB Remessa / Retorno
 
-Validação **estrutural (nível A)** de arquivos de remessa CNAB240 e CNAB400, com catálogo dos bancos do **ACBrBoleto**.
+Validação **estrutural (nível A)** e **campo a campo (nível B)** de arquivos CNAB240 e CNAB400 de **remessa** e **retorno**, com catálogo dos bancos do **ACBrBoleto**.
 
 ## Rodar
 
@@ -23,17 +23,21 @@ npm run build
 
 ## O que valida (nível A + B)
 
+### Modos
+- Toggle na UI: **Remessa** | **Retorno**
+- Modo explícito: arquivo do outro tipo gera `KIND_MISMATCH`
+
 ### Nível A — estrutural
 - Detecção automática CNAB240 / CNAB400 (tamanho de linha)
 - Banco pelo código COMPE no header
-- Header / trailer / segmentos (P, Q, R…)
-- Sequenciais e contagens (warnings se banco zera campos)
+- **Remessa:** `01REMESSA` / pos.143=`1` / segmentos P/Q / operação `R`
+- **Retorno:** `02RETORNO` / pos.143=`2` / segmentos T/U / operação `T`
+- Header / trailer / sequenciais
 - Catálogo ACBr: layout suportado por banco
 
 ### Nível B — linha a linha
-- **CNAB400:** header FEBRABAN, trailer, **detalhe Bradesco**
-- **CNAB240:** header arquivo/lote, segmentos P/Q, trailers
-- Validação campo a campo (tipo, enum, data, valor, ocorrência)
+- Specs FEBRABAN + overrides (Bradesco, Itaú, BB, Santander, Caixa, Sicredi, Sicoob…)
+- **Retorno:** ocorrência `CodOcorrenciaToTipo` (≠ códigos de remessa)
 - UI: tabela de campos por linha
 - Default: `level: 'AB'`
 
@@ -41,15 +45,22 @@ Arquivo processado **só no navegador** (sem upload).
 
 ## O que NÃO valida
 
-- Campos posição-a-posição do manual de cada banco
 - DV nosso número / código de barras
-- Arquivo de retorno
+- Baixa/conciliação contra base de títulos
+- Port completo campo-a-campo de todos os `ACBrBanco*.pas`
 
 ## Stack
 
 Vite + React + TypeScript + shadcn/ui + Vitest
 
 Motor em `src/lib/cnab/` — usável no browser e em Node.
+
+```ts
+import { validateRemessa, validateRetorno } from '@/lib/cnab'
+
+validateRemessa(conteudo)
+validateRetorno(conteudo)
+```
 
 ## Bancos (catálogo ACBr)
 

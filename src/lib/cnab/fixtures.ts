@@ -650,3 +650,158 @@ export function remessa240BB(): string {
 export function remessa240VortxUnsupported(): string {
   return remessa240Bradesco().replace(/^237/gm, '310')
 }
+
+/** Detalhe retorno CNAB400 Bradesco (ocorrência 06 liquidação). */
+export function retorno400BradescoDetalhe(seq: number): string {
+  return buildLine400([
+    { start: 1, end: 1, value: '1' },
+    { start: 2, end: 20, value: padLeft('', 19) },
+    { start: 21, end: 37, value: '0' + padLeft('9', 3) + padLeft('1234', 5) + padLeft('1234567', 7) + '0' },
+    { start: 38, end: 65, value: pad('DOC-001', 25) + '000' },
+    { start: 66, end: 108, value: pad('', 43) },
+    { start: 109, end: 110, value: '06' },
+    { start: 111, end: 116, value: '010825' },
+    { start: 117, end: 126, value: pad('FAT001', 10) },
+    { start: 153, end: 165, value: padLeft('10000', 13) },
+    { start: 254, end: 266, value: padLeft('10000', 13) },
+    { start: 296, end: 301, value: '020825' },
+    { start: 319, end: 328, value: padLeft('', 10) },
+    { start: 395, end: 400, value: padLeft(String(seq), 6) },
+  ])
+}
+
+/** Retorno CNAB400 mínimo Bradesco (02RETORNO). */
+export function retorno400Bradesco(): string {
+  const header = buildLine400([
+    { start: 1, end: 1, value: '0' },
+    { start: 2, end: 2, value: '2' },
+    { start: 3, end: 9, value: 'RETORNO' },
+    { start: 10, end: 11, value: '01' },
+    { start: 12, end: 26, value: pad('COBRANCA', 15) },
+    { start: 27, end: 46, value: padLeft('1234567', 20) },
+    { start: 47, end: 76, value: pad('EMPRESA TESTE LTDA', 30) },
+    { start: 77, end: 79, value: '237' },
+    { start: 80, end: 94, value: pad('BRADESCO', 15) },
+    { start: 95, end: 100, value: '010825' },
+    { start: 111, end: 117, value: padLeft('1', 7) },
+    { start: 395, end: 400, value: padLeft('1', 6) },
+  ])
+
+  const detail = retorno400BradescoDetalhe(2)
+  const trailer = buildLine400([
+    { start: 1, end: 1, value: '9' },
+    { start: 2, end: 394, value: pad('', 393) },
+    { start: 395, end: 400, value: padLeft('3', 6) },
+  ])
+
+  return [header, detail, trailer].join('\n')
+}
+
+/** Retorno CNAB240 mínimo Bradesco com segmentos T/U. */
+export function retorno240Bradesco(): string {
+  const headerArq = buildLine240([
+    { start: 1, end: 3, value: '237' },
+    { start: 4, end: 7, value: '0000' },
+    { start: 8, end: 8, value: '0' },
+    { start: 9, end: 17, value: pad('', 9) },
+    { start: 18, end: 18, value: '2' },
+    { start: 19, end: 32, value: padLeft('12345678000199', 14) },
+    { start: 33, end: 52, value: pad('CONVENIO123', 20) },
+    { start: 53, end: 57, value: padLeft('1234', 5) },
+    { start: 58, end: 58, value: ' ' },
+    { start: 59, end: 70, value: padLeft('123456789012', 12) },
+    { start: 71, end: 71, value: '0' },
+    { start: 72, end: 72, value: ' ' },
+    { start: 73, end: 102, value: pad('EMPRESA TESTE LTDA', 30) },
+    { start: 103, end: 132, value: pad('BRADESCO', 30) },
+    { start: 133, end: 142, value: pad('', 10) },
+    { start: 143, end: 143, value: '2' },
+    { start: 144, end: 151, value: '01082025' },
+    { start: 152, end: 157, value: '120000' },
+    { start: 158, end: 163, value: padLeft('1', 6) },
+    { start: 164, end: 166, value: '040' },
+    { start: 167, end: 171, value: padLeft('6250', 5) },
+    { start: 172, end: 240, value: pad('', 69) },
+  ])
+
+  const headerLote = buildLine240([
+    { start: 1, end: 3, value: '237' },
+    { start: 4, end: 7, value: '0001' },
+    { start: 8, end: 8, value: '1' },
+    { start: 9, end: 9, value: 'T' },
+    { start: 10, end: 11, value: '01' },
+    { start: 12, end: 13, value: '  ' },
+    { start: 14, end: 16, value: '040' },
+    { start: 17, end: 240, value: pad('', 224) },
+  ])
+
+  const segT = buildLine240([
+    { start: 1, end: 3, value: '237' },
+    { start: 4, end: 7, value: '0001' },
+    { start: 8, end: 8, value: '3' },
+    { start: 9, end: 13, value: padLeft('1', 5) },
+    { start: 14, end: 14, value: 'T' },
+    { start: 15, end: 15, value: ' ' },
+    { start: 16, end: 17, value: '06' },
+    { start: 18, end: 22, value: padLeft('1234', 5) },
+    { start: 23, end: 23, value: '0' },
+    { start: 24, end: 35, value: padLeft('123456789012', 12) },
+    { start: 36, end: 36, value: '0' },
+    { start: 37, end: 37, value: ' ' },
+    { start: 38, end: 57, value: padLeft('12345678901', 20) },
+    { start: 58, end: 58, value: '1' },
+    { start: 59, end: 73, value: pad('FAT001', 15) },
+    { start: 74, end: 81, value: '01082025' },
+    { start: 82, end: 96, value: padLeft('10000', 15) },
+    { start: 199, end: 213, value: padLeft('0', 15) },
+    { start: 214, end: 223, value: pad('', 10) },
+  ])
+
+  const segU = buildLine240([
+    { start: 1, end: 3, value: '237' },
+    { start: 4, end: 7, value: '0001' },
+    { start: 8, end: 8, value: '3' },
+    { start: 9, end: 13, value: padLeft('2', 5) },
+    { start: 14, end: 14, value: 'U' },
+    { start: 15, end: 15, value: ' ' },
+    { start: 16, end: 17, value: '06' },
+    { start: 18, end: 32, value: padLeft('0', 15) },
+    { start: 33, end: 47, value: padLeft('0', 15) },
+    { start: 48, end: 62, value: padLeft('0', 15) },
+    { start: 63, end: 77, value: padLeft('0', 15) },
+    { start: 78, end: 92, value: padLeft('10000', 15) },
+    { start: 93, end: 107, value: padLeft('10000', 15) },
+    { start: 108, end: 122, value: padLeft('0', 15) },
+    { start: 123, end: 137, value: padLeft('0', 15) },
+    { start: 138, end: 145, value: '01082025' },
+    { start: 146, end: 153, value: '02082025' },
+  ])
+
+  const trailerLote = buildLine240([
+    { start: 1, end: 3, value: '237' },
+    { start: 4, end: 7, value: '0001' },
+    { start: 8, end: 8, value: '5' },
+    { start: 18, end: 23, value: padLeft('4', 6) },
+  ])
+
+  const trailerArq = buildLine240([
+    { start: 1, end: 3, value: '237' },
+    { start: 4, end: 7, value: '9999' },
+    { start: 8, end: 8, value: '9' },
+    { start: 18, end: 23, value: '000001' },
+    { start: 24, end: 29, value: padLeft('6', 6) },
+  ])
+
+  return [headerArq, headerLote, segT, segU, trailerLote, trailerArq].join('\n')
+}
+
+/** Retorno CNAB400 Itaú. */
+export function retorno400Itau(): string {
+  return retorno400Bradesco().replace(/237/g, '341')
+}
+
+/** Retorno CNAB240 Itaú. */
+export function retorno240Itau(): string {
+  return retorno240Bradesco().replace(/237/g, '341')
+}
+

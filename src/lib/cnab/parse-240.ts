@@ -54,7 +54,13 @@ export function lineTipo240(line: string): string {
   return tipo || '?'
 }
 
-/** Estimativa de títulos = contagem de segmento P (padrão cobrança). */
-export function estimateTitles240(parsed: Parsed240): number {
+/** Estimativa de títulos = contagem de segmento P (remessa) ou T (retorno). */
+export function estimateTitles240(
+  parsed: Parsed240,
+  kind: 'remessa' | 'retorno' = 'remessa',
+): number {
+  if (kind === 'retorno') {
+    return parsed.segmentos.T ?? Math.ceil(parsed.details.length / 2)
+  }
   return parsed.segmentos.P ?? Math.ceil(parsed.details.length / 2)
 }

@@ -1,135 +1,20 @@
-import { bankSupportsLayout, findBanksByCompe, formatBankLabel } from './banks'
 import { detectRemessa } from './detect'
 import { estimateTitles240, lineTipo240, parse240 } from './parse-240'
 import { lineTipo400, parse400 } from './parse-400'
 import { CNAB240, CNAB400, field } from './positions'
 import { validateFileLines } from './validate-line'
+import {
+  checkKindMismatch,
+  push,
+  validateBankRules,
+  validateCommon,
+} from './validate-shared'
 import type {
   RemessaSummary,
   ValidateOptions,
   ValidationIssue,
   ValidationResult,
 } from './types'
-
-function push(
-  issues: ValidationIssue[],
-  severity: ValidationIssue['severity'],
-  code: string,
-  message: string,
-  line?: number,
-) {
-  issues.push({ severity, code, message, line })
-}
-
-function hasNonAnsi(content: string): boolean {
-  return /[^\x00-\xFF]/.test(content)
-}
-
-function validateCommon(
-  content: string,
-  lines: ValidationResult['lines'],
-  issues: ValidationIssue[],
-): void {
-  if (!content.trim()) {
-    push(issues, 'error', 'EMPTY', 'Arquivo vazio')
-    return
-  }
-
-  if (lines.length === 0) {
-    push(issues, 'error', 'NO_LINES', 'Nenhuma linha útil encontrada')
-    return
-  }
-
-  if (hasNonAnsi(content)) {
-    push(
-      issues,
-      'warning',
-      'ENCODING',
-      'Caracteres fora do Latin-1/ANSI detectados — remessa costuma ser ANSI',
-    )
-  }
-
-  const lengths = new Set(lines.map((l) => l.length))
-  if (lengths.size > 1) {
-    const summary = [...lengths]
-      .map((len) => `${len} (${lines.filter((l) => l.length === len).length} linhas)`)
-      .join(', ')
-    push(
-      issues,
-      'error',
-      'MIXED_LENGTH',
-      `Linhas com tamanhos mistos: ${summary}. Esperado uniforme 240 ou 400.`,
-    )
-  }
-}
-
-function validateBankRules(
-  bankCode: string | null,
-  layout: 'c240' | 'c400' | null,
-  issues: ValidationIssue[],
-  options?: ValidateOptions,
-): { bankName: string | null; bankIds: string[] } {
-  if (!bankCode) {
-    push(issues, 'warning', 'BANK_UNKNOWN', 'Código do banco não identificado no header')
-    return { bankName: null, bankIds: [] }
-  }
-
-  const banks = findBanksByCompe(bankCode)
-  if (banks.length === 0) {
-    push(
-      issues,
-      'warning',
-      'BANK_NOT_IN_ACBR',
-      `COMPE ${bankCode} não encontrado no catálogo ACBr`,
-    )
-    return { bankName: null, bankIds: [] }
-  }
-
-  push(
-    issues,
-    'info',
-    'BANK_MATCH',
-    `Banco ACBr: ${formatBankLabel(banks)} (${bankCode})`,
-  )
-
-  if (layout) {
-    const unsupported = banks.filter((b) => !bankSupportsLayout(b, layout))
-    const supported = banks.filter((b) => bankSupportsLayout(b, layout))
-    if (supported.length === 0 && unsupported.length > 0) {
-      push(
-        issues,
-        'error',
-        'LAYOUT_UNSUPPORTED',
-        `Layout ${layout} não suportado no ACBr para ${formatBankLabel(unsupported)}`,
-      )
-    } else if (unsupported.length > 0 && supported.length > 0) {
-      push(
-        issues,
-        'warning',
-        'LAYOUT_PARTIAL',
-        `Algumas variantes ACBr não geram ${layout}: ${unsupported.map((b) => b.id).join(', ')}`,
-      )
-    }
-  }
-
-  if (options?.expectedCompe) {
-    const expected = options.expectedCompe.replace(/\D/g, '').padStart(3, '0')
-    const actual = bankCode.replace(/\D/g, '').padStart(3, '0')
-    if (expected !== actual) {
-      push(
-        issues,
-        'error',
-        'BANK_MISMATCH',
-        `COMPE detectado ${actual} ≠ esperado ${expected}`,
-      )
-    }
-  }
-
-  return {
-    bankName: formatBankLabel(banks),
-    bankIds: banks.map((b) => b.id),
-  }
-}
 
 function validate400(lines: ValidationResult['lines'], issues: ValidationIssue[]) {
   const parsed = parse400(lines)
@@ -139,7 +24,7 @@ function validate400(lines: ValidationResult['lines'], issues: ValidationIssue[]
     push(issues, 'error', 'H400_MISSING', 'Header CNAB400 (registro 0) ausente')
   } else {
     const tipoArq = field(header.raw, CNAB400.tipoArquivo)
-    const literal = field(header.raw, CNAB400.literalRemessa).trim().toUpperCase()
+    const literal = field(header.raw, CNAB400.literalArquivo).trim().toUpperCase()
     const registro = field(header.raw, CNAB400.registro)
 
     if (registro !== '0') {
@@ -294,7 +179,7 @@ function validate240(lines: ValidationResult['lines'], issues: ValidationIssue[]
     }
   }
 
-  return estimateTitles240(parsed)
+  return estimateTitles240(parsed, 'remessa')
 }
 
 export function validateRemessa(
@@ -303,9 +188,10 @@ export function validateRemessa(
 ): ValidationResult {
   const issues: ValidationIssue[] = []
   const detected = detectRemessa(content)
-  const { lines, layout, bankCode, remessaNumber } = detected
+  const { lines, layout, bankCode, remessaNumber, kind } = detected
 
   validateCommon(content, lines, issues)
+  checkKindMismatch(kind, 'remessa', issues)
 
   const bankInfo = validateBankRules(bankCode, layout, issues, options)
 
@@ -331,6 +217,7 @@ export function validateRemessa(
 
   const summary: RemessaSummary = {
     layout,
+    kind: kind ?? 'remessa',
     bankCode,
     bankName: bankInfo.bankName,
     bankIds: bankInfo.bankIds,
@@ -361,6 +248,7 @@ export function validateRemessa(
       layout,
       bankId: bankInfo.bankIds[0],
       bankCode,
+      kind: 'remessa',
     })
     issues.push(...bankResult.issues)
     lineDetails = bankResult.lineDetails

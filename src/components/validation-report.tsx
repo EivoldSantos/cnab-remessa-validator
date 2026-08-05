@@ -33,7 +33,13 @@ export function ValidationReport({ fileName, result }: ValidationReportProps) {
     <div className="flex flex-col gap-4">
       <Alert variant={ok ? 'default' : 'destructive'}>
         {ok ? <CheckCircle2 className="size-4" /> : <XCircle className="size-4" />}
-        <AlertTitle>{ok ? 'Remessa válida' : 'Problemas encontrados'}</AlertTitle>
+        <AlertTitle>
+          {ok
+            ? summary.kind === 'retorno'
+              ? 'Retorno válido'
+              : 'Remessa válida'
+            : 'Problemas encontrados'}
+        </AlertTitle>
         <AlertDescription>
           {fileName} — {errors} erro(s), {warnings} aviso(s)
           {summary.fieldsValidated != null && summary.fieldsValidated > 0
@@ -42,7 +48,11 @@ export function ValidationReport({ fileName, result }: ValidationReportProps) {
         </AlertDescription>
       </Alert>
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-6">
+        <SummaryItem
+          label="Tipo"
+          value={summary.kind === 'retorno' ? 'Retorno' : 'Remessa'}
+        />
         <SummaryItem label="Layout" value={summary.layout?.toUpperCase() ?? '—'} />
         <SummaryItem
           label="Banco"
@@ -52,7 +62,10 @@ export function ValidationReport({ fileName, result }: ValidationReportProps) {
               : '—'
           }
         />
-        <SummaryItem label="Nº remessa" value={summary.remessaNumber ?? '—'} />
+        <SummaryItem
+          label={summary.kind === 'retorno' ? 'Nº arquivo' : 'Nº remessa'}
+          value={summary.remessaNumber ?? '—'}
+        />
         <SummaryItem
           label="Linhas / títulos"
           value={`${summary.lineCount} / ~${summary.titleEstimate}`}

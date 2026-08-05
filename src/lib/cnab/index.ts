@@ -1,5 +1,6 @@
 export type {
   BankDefinition,
+  CnabKind,
   CnabLayout,
   DetectResult,
   FieldDefinition,
@@ -25,10 +26,11 @@ export {
   listAllBanks,
 } from './banks'
 
-export { detectLayout, detectRemessa, splitLines } from './detect'
+export { detectLayout, detectRemessa, detectRetorno, detectKindFromHeader, splitLines } from './detect'
 export { parse400, lineTipo400 } from './parse-400'
 export { parse240, lineTipo240, estimateTitles240 } from './parse-240'
 export { extractFields, validateFields, parseAndValidateLine } from './field-engine'
 export { classifyLine, getRecordSpec, listAvailableSpecs } from './spec-registry'
 export { validateLine, validateFileLines } from './validate-line'
 export { validateRemessa } from './validate'
+export { validateRetorno } from './validate-retorno'

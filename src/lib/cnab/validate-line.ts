@@ -1,6 +1,7 @@
 import { parseAndValidateLine } from './field-engine'
 import { classifyLine, getRecordSpec } from './spec-registry'
 import type {
+  CnabKind,
   CnabLayout,
   LineValidationResult,
   ParsedLine,
@@ -11,6 +12,7 @@ export interface ValidateLinesContext {
   layout: CnabLayout
   bankId?: string
   bankCode?: string | null
+  kind?: CnabKind
 }
 
 export function validateLine(
@@ -21,12 +23,14 @@ export function validateLine(
   const recordType = classifyLine(line.raw, ctx.layout)
   if (!recordType) return null
 
-  const spec = getRecordSpec(ctx.layout, recordType, ctx.bankId)
+  const kind = ctx.kind ?? 'remessa'
+  const spec = getRecordSpec(ctx.layout, recordType, ctx.bankId, kind)
   if (!spec) return null
 
   const { fields, issues } = parseAndValidateLine(line.raw, spec, {
     lineIndex: line.index,
     layout: ctx.layout,
+    kind,
     bankId: ctx.bankId,
     lineCount,
     recordType,

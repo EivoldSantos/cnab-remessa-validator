@@ -1,4 +1,4 @@
-import type { CnabLayout, RecordSpec } from './types'
+import type { CnabKind, CnabLayout, RecordSpec } from './types'
 import { resolveCanonicalBankId } from './layout-aliases'
 import { FEBRABAN_SPECS } from './specs/febraban'
 import { CNAB240, CNAB400, field } from './positions'
@@ -6,21 +6,30 @@ import { CNAB240, CNAB400, field } from './positions'
 const febrabanByKey = new Map<string, RecordSpec>()
 const bankByKey = new Map<string, RecordSpec>()
 
+function specKind(spec: RecordSpec): CnabKind {
+  return spec.kind ?? 'remessa'
+}
+
 for (const spec of FEBRABAN_SPECS) {
-  const key = specKey(spec.layout, spec.recordType)
+  const kind = specKind(spec)
   if (spec.bankId) {
-    bankByKey.set(bankSpecKey(spec.bankId, spec.layout, spec.recordType), spec)
+    bankByKey.set(bankSpecKey(spec.bankId, kind, spec.layout, spec.recordType), spec)
   } else {
-    febrabanByKey.set(key, spec)
+    febrabanByKey.set(specKey(kind, spec.layout, spec.recordType), spec)
   }
 }
 
-function specKey(layout: CnabLayout, recordType: string): string {
-  return `${layout}:${recordType}`
+function specKey(kind: CnabKind, layout: CnabLayout, recordType: string): string {
+  return `${kind}:${layout}:${recordType}`
 }
 
-function bankSpecKey(bankId: string, layout: CnabLayout, recordType: string): string {
-  return `${bankId}:${layout}:${recordType}`
+function bankSpecKey(
+  bankId: string,
+  kind: CnabKind,
+  layout: CnabLayout,
+  recordType: string,
+): string {
+  return `${bankId}:${kind}:${layout}:${recordType}`
 }
 
 export function classifyLine(line: string, layout: CnabLayout): string | null {
@@ -54,19 +63,20 @@ export function getRecordSpec(
   layout: CnabLayout,
   recordType: string,
   bankId?: string,
+  kind: CnabKind = 'remessa',
 ): RecordSpec | null {
   if (bankId) {
-    const exact = bankByKey.get(bankSpecKey(bankId, layout, recordType))
+    const exact = bankByKey.get(bankSpecKey(bankId, kind, layout, recordType))
     if (exact) return exact
 
     const canonicalId = resolveCanonicalBankId(bankId)
     if (canonicalId && canonicalId !== bankId) {
-      const canonicalSpec = bankByKey.get(bankSpecKey(canonicalId, layout, recordType))
+      const canonicalSpec = bankByKey.get(bankSpecKey(canonicalId, kind, layout, recordType))
       if (canonicalSpec) return canonicalSpec
     }
   }
 
-  return febrabanByKey.get(specKey(layout, recordType)) ?? null
+  return febrabanByKey.get(specKey(kind, layout, recordType)) ?? null
 }
 
 export function listAvailableSpecs(): RecordSpec[] {
