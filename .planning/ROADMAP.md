@@ -2,7 +2,7 @@
 
 ## Phases
 
-- [ ] **Phase 1: Base confiável** - Bugs críticos, testes core, CI
+- [x] **Phase 1: Base confiável** - Bugs críticos, testes core, CI (completed 2026-08-07)
 - [ ] **Phase 2: Specs bancos prioritários**
 - [ ] **Phase 3: Bradesco 240 e retorno avançado**
 - [ ] **Phase 4: UX operacional**

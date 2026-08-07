@@ -7,25 +7,25 @@
 
 ### Bug Fixes
 
-- [ ] **BUG-02**: Emitir issue quando linha/registro não possui spec
-- [ ] **BUG-03**: Suportar CNAB240 multi-lote em parse240() e validação estrutural
+- [x] **BUG-02**: Emitir issue quando linha/registro não possui spec
+- [x] **BUG-03**: Suportar CNAB240 multi-lote em parse240() e validação estrutural
 
 ### Testing
 
-- [ ] **TEST-01**: Testes unitários para detect.ts, parse-240.ts, parse-400.ts, validate-shared.ts
+- [x] **TEST-01**: Testes unitários para detect.ts, parse-240.ts, parse-400.ts, validate-shared.ts
 
 ### Infrastructure
 
-- [ ] **INFRA-01**: Pipeline CI (GitHub Actions) com npm test, build, audit
+- [x] **INFRA-01**: Pipeline CI (GitHub Actions) com npm test, build, audit
 
 ## Traceability
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| BUG-02 | Phase 1 | Pending |
-| BUG-03 | Phase 1 | Pending |
-| TEST-01 | Phase 1 | Pending |
-| INFRA-01 | Phase 1 | Pending |
+| BUG-02 | Phase 1 | Complete |
+| BUG-03 | Phase 1 | Complete |
+| TEST-01 | Phase 1 | Complete |
+| INFRA-01 | Phase 1 | Complete |
 
 ---
 *Requirements defined: 2026-08-07*
