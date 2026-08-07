@@ -73,6 +73,29 @@ describe('validate-line', () => {
     const { issues } = validateFileLines(lines, { layout: 'c400', bankId: 'cobBradesco' })
     expect(issues.some((i) => i.code === 'F400_HDR_TIPO_ARQ')).toBe(true)
   })
+
+  it('emite UNKNOWN_RECORD para registro não classificado em CNAB400', () => {
+    const lines = splitLines(remessa400Bradesco())
+    lines[1] = { index: lines[1]!.index, raw: '1234567', length: 7 }
+    const { issues, lineDetails } = validateFileLines(lines, {
+      layout: 'c400',
+      bankId: 'cobBradesco',
+    })
+    expect(issues.some((i) => i.code === 'UNKNOWN_RECORD')).toBe(true)
+    expect(lineDetails.some((ld) => ld.recordLabel === 'Registro não classificado')).toBe(true)
+  })
+
+  it('emite NO_SPEC quando registro não possui spec no registry', () => {
+    const lines = splitLines(remessa400Bradesco())
+    const noSpecDetail = '8' + lines[1]!.raw.slice(1)
+    lines[1] = { ...lines[1]!, raw: noSpecDetail, length: noSpecDetail.length }
+    const { issues, lineDetails } = validateFileLines(lines, {
+      layout: 'c400',
+      bankId: 'cobBradesco',
+    })
+    expect(issues.some((i) => i.code === 'NO_SPEC')).toBe(true)
+    expect(lineDetails.some((ld) => ld.issues.some((i) => i.code === 'NO_SPEC'))).toBe(true)
+  })
 })
 
 describe('validateRemessa nível B', () => {
@@ -127,5 +150,17 @@ describe('validateRemessa nível B', () => {
     const resultB = validateRemessa(mutated, { level: 'AB' })
     expect(resultA.issues.some((i) => i.code === 'F400_HDR_TIPO_ARQ')).toBe(false)
     expect(resultB.issues.some((i) => i.code === 'F400_HDR_TIPO_ARQ')).toBe(true)
+  })
+
+  it('nível A não emite warnings de spec ausente', async () => {
+    const { validateRemessa } = await import('./validate')
+    const content = remessa400Bradesco()
+    const lines = content.split('\n')
+    lines[1] = '8' + lines[1]!.slice(1)
+    const mutated = lines.join('\n')
+    const resultA = validateRemessa(mutated, { level: 'A' })
+    expect(resultA.issues.some((i) => i.code === 'NO_SPEC')).toBe(false)
+    expect(resultA.issues.some((i) => i.code === 'UNKNOWN_RECORD')).toBe(false)
+    expect(resultA.lineDetails).toBeUndefined()
   })
 })
