@@ -28,7 +28,8 @@ export {
 
 export { detectLayout, detectRemessa, detectRetorno, detectKindFromHeader, splitLines } from './detect'
 export { parse400, lineTipo400 } from './parse-400'
-export { parse240, lineTipo240, estimateTitles240 } from './parse-240'
+export { parse240, getPrimaryLote, lineTipo240, estimateTitles240 } from './parse-240'
+export type { Parsed240, Parsed240Lote } from './parse-240'
 export { extractFields, validateFields, parseAndValidateLine } from './field-engine'
 export { classifyLine, getRecordSpec, listAvailableSpecs } from './spec-registry'
 export { validateLine, validateFileLines } from './validate-line'

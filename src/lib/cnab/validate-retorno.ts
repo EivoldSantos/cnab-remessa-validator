@@ -1,5 +1,5 @@
 import { detectRetorno } from './detect'
-import { estimateTitles240, lineTipo240, parse240 } from './parse-240'
+import { estimateTitles240, getPrimaryLote, lineTipo240, parse240 } from './parse-240'
 import { lineTipo400, parse400 } from './parse-400'
 import { CNAB240, CNAB400, field } from './positions'
 import { validateFileLines } from './validate-line'
@@ -84,6 +84,43 @@ function validate400Retorno(lines: ValidationResult['lines'], issues: Validation
   return parsed.details.filter((d) => field(d.raw, CNAB400.registro) === '1').length
 }
 
+function validateLote240RetornoCounts(
+  loteIndex: number,
+  loteNum: string,
+  lote: NonNullable<ReturnType<typeof getPrimaryLote>>,
+  issues: ValidationIssue[],
+) {
+  if (!lote.trailerLote) {
+    push(
+      issues,
+      'error',
+      'T240_LOTE',
+      `Trailer de lote (tipo 5) ausente no lote ${loteNum || loteIndex + 1}`,
+    )
+    return
+  }
+
+  const qtdRegs = Number(field(lote.trailerLote.raw, CNAB240.qtdRegistrosLote))
+  const expectedLote = 1 + lote.details.length + 1
+  if (qtdRegs > 0 && qtdRegs !== expectedLote) {
+    push(
+      issues,
+      'warning',
+      'T240_LOTE_COUNT',
+      `Lote ${loteNum || loteIndex + 1}: qtd registros trailer=${qtdRegs}, calculado≈${expectedLote}`,
+      lote.trailerLote.index,
+    )
+  } else if (qtdRegs === 0) {
+    push(
+      issues,
+      'info',
+      'T240_LOTE_ZERO',
+      `Lote ${loteNum || loteIndex + 1}: trailer com contadores zerados (alguns bancos fazem isso)`,
+      lote.trailerLote.index,
+    )
+  }
+}
+
 function validate240Retorno(lines: ValidationResult['lines'], issues: ValidationIssue[]) {
   const parsed = parse240(lines)
 
@@ -102,28 +139,33 @@ function validate240Retorno(lines: ValidationResult['lines'], issues: Validation
     }
   }
 
-  if (!parsed.headerLote) {
+  if (parsed.lotes.length === 0) {
     push(issues, 'error', 'H240_LOTE', 'Header de lote (tipo 1) ausente')
   } else {
-    const op = field(parsed.headerLote.raw, CNAB240.tipoOperacao)
-    const serv = field(parsed.headerLote.raw, CNAB240.tipoServico)
-    if (op !== 'T') {
-      push(
-        issues,
-        'warning',
-        'H240_OP',
-        `Tipo operação esperado T (retorno), encontrado "${op}"`,
-        parsed.headerLote.index,
-      )
-    }
-    if (serv !== '01') {
-      push(
-        issues,
-        'warning',
-        'H240_SERV',
-        `Tipo serviço cobrança esperado 01, encontrado "${serv}"`,
-        parsed.headerLote.index,
-      )
+    for (let i = 0; i < parsed.lotes.length; i++) {
+      const lote = parsed.lotes[i]!
+      const loteNum = field(lote.headerLote.raw, CNAB240.lote)
+      const op = field(lote.headerLote.raw, CNAB240.tipoOperacao)
+      const serv = field(lote.headerLote.raw, CNAB240.tipoServico)
+      if (op !== 'T') {
+        push(
+          issues,
+          'warning',
+          'H240_OP',
+          `Lote ${loteNum}: tipo operação esperado T (retorno), encontrado "${op}"`,
+          lote.headerLote.index,
+        )
+      }
+      if (serv !== '01') {
+        push(
+          issues,
+          'warning',
+          'H240_SERV',
+          `Lote ${loteNum}: tipo serviço cobrança esperado 01, encontrado "${serv}"`,
+          lote.headerLote.index,
+        )
+      }
+      validateLote240RetornoCounts(i, loteNum, lote, issues)
     }
   }
 
@@ -139,31 +181,6 @@ function validate240Retorno(lines: ValidationResult['lines'], issues: Validation
     }
     if (!parsed.segmentos.U) {
       push(issues, 'info', 'D240_NO_U', 'Segmento U não encontrado (valores de liquidação)')
-    }
-  }
-
-  if (!parsed.trailerLote) {
-    push(issues, 'error', 'T240_LOTE', 'Trailer de lote (tipo 5) ausente')
-  } else {
-    const qtdRegs = Number(field(parsed.trailerLote.raw, CNAB240.qtdRegistrosLote))
-    const expectedLote =
-      (parsed.headerLote ? 1 : 0) + parsed.details.length + 1
-    if (qtdRegs > 0 && qtdRegs !== expectedLote) {
-      push(
-        issues,
-        'warning',
-        'T240_LOTE_COUNT',
-        `Qtd registros lote trailer=${qtdRegs}, calculado≈${expectedLote}`,
-        parsed.trailerLote.index,
-      )
-    } else if (qtdRegs === 0) {
-      push(
-        issues,
-        'info',
-        'T240_LOTE_ZERO',
-        'Trailer lote com contadores zerados (alguns bancos fazem isso)',
-        parsed.trailerLote.index,
-      )
     }
   }
 

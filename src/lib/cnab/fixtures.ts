@@ -805,3 +805,33 @@ export function retorno240Itau(): string {
   return retorno240Bradesco().replace(/237/g, '341')
 }
 
+function withLoteNum240(line: string, loteNum: string): string {
+  return line.slice(0, 3) + loteNum + line.slice(7)
+}
+
+function withTrailerArqCounts240(line: string, lotes: number, regs: number): string {
+  const loteStr = String(lotes).padStart(6, '0')
+  const regStr = String(regs).padStart(6, '0')
+  return line.slice(0, 17) + loteStr + regStr + line.slice(29)
+}
+
+/** Remessa CNAB240 com 2 lotes (0001 + 0002). */
+export function remessa240MultiLote(): string {
+  const lines = remessa240Bradesco().split('\n')
+  const headerArq = lines[0]!
+  const lote1 = lines.slice(1, 5)
+  const lote2 = lote1.map((l) => withLoteNum240(l, '0002'))
+  const trailerArq = withTrailerArqCounts240(lines[5]!, 2, 10)
+  return [headerArq, ...lote1, ...lote2, trailerArq].join('\n')
+}
+
+/** Retorno CNAB240 com 2 lotes (0001 + 0002). */
+export function retorno240MultiLote(): string {
+  const lines = retorno240Bradesco().split('\n')
+  const headerArq = lines[0]!
+  const lote1 = lines.slice(1, 5)
+  const lote2 = lote1.map((l) => withLoteNum240(l, '0002'))
+  const trailerArq = withTrailerArqCounts240(lines[5]!, 2, 10)
+  return [headerArq, ...lote1, ...lote2, trailerArq].join('\n')
+}
+
